@@ -1988,6 +1988,43 @@
         "./skills/debugging-strategies",
         "./skills/monorepo-management"
       ]
+    },
+    {
+      "name": "feature-builders",
+      "source": "./plugins/feature-builders",
+      "description": "Comprehensive feature builder skills for DDD backend (.NET) and React frontend development with TDD. Handles complete feature lifecycle from discovery to final reporting with automatic planning, approval workflows, and Playwright validation.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Hammond Pole Inc",
+        "url": "https://github.com/Hammond-Pole"
+      },
+      "homepage": "https://github.com/Hammond-Pole/claudecodeagents",
+      "repository": "https://github.com/Hammond-Pole/claudecodeagents",
+      "license": "MIT",
+      "keywords": [
+        "ddd",
+        "domain-driven-design",
+        "react",
+        "typescript",
+        "tdd",
+        "test-driven-development",
+        "dotnet",
+        "feature-development",
+        "architecture",
+        "playwright",
+        "accessibility"
+      ],
+      "category": "development",
+      "strict": false,
+      "commands": [],
+      "agents": [
+        "./agents/ddd-feature-builder-agent.md",
+        "./agents/react-feature-builder-agent.md"
+      ],
+      "skills": [
+        "./skills/ddd-feature-builder/SKILL.md",
+        "./skills/react-feature-builder/SKILL.md"
+      ]
     }
   ]
 }
