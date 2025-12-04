@@ -260,11 +260,20 @@ Detected Patterns:
 
 ## PHASE 4: IMPLEMENTATION PLAN CREATION (Mode-Specific)
 
-**CRITICAL: Create formal implementation plan document BEFORE any coding.**
+**⛔ CRITICAL: You MUST create a formal implementation plan and get USER APPROVAL before writing ANY code.**
+
+**This is a BLOCKING checkpoint. You cannot proceed to Phase 5 until the user explicitly approves the plan.**
 
 ### Step 1: Generate Implementation Plan
 
 Based on the operation mode (CREATE/ENHANCE/FIX), create a comprehensive implementation plan.
+
+**The plan MUST include:**
+1. All components to be created with their context-aware IDs
+2. Component hierarchy showing parent-child relationships
+3. All IDs that will be used (following `{feature-prefix}-{component-description}` format in kebab-case)
+4. TDD strategy for each component
+5. File structure with exact paths
 
 ### For CREATE Mode - Implementation Plan Template:
 
@@ -364,32 +373,65 @@ tests/e2e/
 - Update `App.tsx` to add route
 - Add to route constants in `config/routes.ts`
 
-## 5. Component Architecture
+## 5. Component Architecture & IDs
+
+**CRITICAL: Every component MUST have a context-aware ID using kebab-case with feature prefix.**
 
 ### [Feature]Page.tsx
 - **Purpose:** Main page container
+- **ID:** `[feature]-management-page`
 - **State:** URL params (page, pageSize, search, filters)
 - **Data Fetching:** RTK Query hook for paginated data
 - **Child Components:** ListView, Filters, Modals
 
 ### [Feature]ListView.tsx
 - **Purpose:** Display data in chosen format
+- **ID:** `[feature]-data-table` or `[feature]-list-view`
 - **Props:** items[], onAction callbacks, isFetching
 - **Features:** Empty state, loading overlay
+- **Item IDs:** `[feature]-list-item-{id}` for each item
 
 ### Create[Feature]Modal.tsx
 - **Purpose:** Form for creating new items
+- **ID:** `[feature]-create-modal`
+- **Form ID:** `[feature]-create-form`
 - **Validation:** Zod schema matching backend
 - **Form Management:** react-hook-form
 
 ### Edit[Feature]Modal.tsx
 - **Purpose:** Form for editing existing items
+- **ID:** `[feature]-edit-modal`
+- **Form ID:** `[feature]-edit-form`
 - **Features:** Pre-populate, optimistic updates
 
 ### [Feature]Filters.tsx
 - **Purpose:** Search and filter controls
+- **ID:** `[feature]-filters-panel`
+- **Search ID:** `[feature]-search-input`
+- **Filter IDs:** `[feature]-{filterName}-filter`
 - **State Management:** URL query params
 - **Debouncing:** For search input
+
+### Component ID Reference Table
+
+| Component | ID Pattern | Example |
+|-----------|------------|---------|
+| Page container | `{feature}-management-page` | `tasks-management-page` |
+| Data table | `{feature}-data-table` | `tasks-data-table` |
+| List view | `{feature}-list-view` | `tasks-list-view` |
+| List item | `{feature}-list-item-{id}` | `tasks-list-item-abc123` |
+| Create modal | `{feature}-create-modal` | `tasks-create-modal` |
+| Edit modal | `{feature}-edit-modal` | `tasks-edit-modal` |
+| Delete dialog | `{feature}-delete-confirmation-dialog` | `tasks-delete-confirmation-dialog` |
+| Create form | `{feature}-create-form` | `tasks-create-form` |
+| Edit form | `{feature}-edit-form` | `tasks-edit-form` |
+| Filters panel | `{feature}-filters-panel` | `tasks-filters-panel` |
+| Search input | `{feature}-search-input` | `tasks-search-input` |
+| Status filter | `{feature}-status-filter` | `tasks-status-filter` |
+| Create button | `{feature}-create-button` | `tasks-create-button` |
+| Save button | `{feature}-save-button` | `tasks-save-button` |
+| Cancel button | `{feature}-cancel-button` | `tasks-cancel-button` |
+| Pagination | `{feature}-pagination` | `tasks-pagination` |
 
 ## 6. Testing Strategy
 
@@ -698,7 +740,9 @@ ProjectArchitecture/Plans/[MODE]-[FeatureName]-[Timestamp].md
 
 ---
 
-### Step 3: Request User Approval
+### Step 3: Request User Approval (MANDATORY BLOCKING STEP)
+
+**⛔ CRITICAL: You MUST NOT write any code until the user explicitly approves the plan.**
 
 **Present the plan to the user:**
 
@@ -711,7 +755,10 @@ ProjectArchitecture/Plans/[MODE]-[FeatureName]-[Timestamp].md
 - Files to create: [X]
 - Files to modify: [X]
 - Tests to create: [X]
+- Component IDs defined: [X]
 - Estimated complexity: [Low/Medium/High]
+
+**⚠️ I will NOT start coding until you approve this plan.**
 
 Please review the plan. You can:
 1. ✅ **Approve** - I'll proceed with implementation
@@ -722,7 +769,9 @@ What would you like to do?"
 
 ---
 
-### Step 4: Plan Approval Loop
+### Step 4: Plan Approval Loop (BLOCKING)
+
+**⛔ This step BLOCKS all implementation until user explicitly approves.**
 
 **USE AskUserQuestion tool:**
 
@@ -755,17 +804,25 @@ What would you like to do?"
 - Update the plan document
 - Save updated version with same filename (overwrite)
 - Show updated plan summary
-- Loop back to approval question
+- **Loop back to approval question** - DO NOT proceed until approved
 
 **If user selects "Approve":**
 - Update plan status from `PENDING APPROVAL` to `APPROVED`
-- Add approval timestamp to plan
-- Proceed to PHASE 5
+- Add approval timestamp to plan:
+  ```markdown
+  **Status:** APPROVED
+  **Approved At:** [Current Date and Time]
+  ```
+- **ONLY NOW proceed to PHASE 5**
 
 **If user selects "Cancel":**
 - Update plan status to `CANCELLED`
-- Stop execution
+- Add cancellation timestamp to plan
+- Stop execution completely
+- Inform user: "Plan cancelled. No code was written."
 - Return to user
+
+**⚠️ IMPORTANT: If user does not explicitly approve, you MUST NOT proceed to Phase 5 or any implementation steps.**
 
 ---
 
@@ -1188,18 +1245,19 @@ export const TaskManagementPage: React.FC = () => {
   if (error) return <ErrorDisplay error={error} onRetry={refetch} />
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div id="tasks-management-page" className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-foreground">Task Management</h1>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Button id="tasks-create-button" onClick={() => setIsCreateModalOpen(true)}>
             Create Task
           </Button>
         </div>
 
         {/* Filters */}
         <TaskFilters
+          id="tasks-filters-panel"
           search={params.search}
           statusFilter={params.statusFilter}
           priorityFilter={params.priorityFilter}
@@ -1210,6 +1268,7 @@ export const TaskManagementPage: React.FC = () => {
 
         {/* Data Display */}
         <TaskListView
+          id="tasks-data-table"
           tasks={tasksData?.items || []}
           onCompleteTask={handleCompleteTask}
           isFetching={isFetching}
@@ -1217,6 +1276,7 @@ export const TaskManagementPage: React.FC = () => {
 
         {/* Pagination */}
         <Pagination
+          id="tasks-pagination"
           page={tasksData?.page || 1}
           pageSize={tasksData?.pageSize || 20}
           totalCount={tasksData?.totalCount || 0}
@@ -1227,6 +1287,7 @@ export const TaskManagementPage: React.FC = () => {
 
         {/* Create Modal */}
         <CreateTaskModal
+          id="tasks-create-modal"
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
         />
@@ -1244,29 +1305,32 @@ import { TaskCard } from './TaskCard'
 import { TaskDto } from '../types/task.types'
 
 interface TaskListViewProps {
+  id: string  // Required: context-aware ID
   tasks: TaskDto[]
   onCompleteTask: (id: string) => void
   isFetching: boolean
 }
 
 export const TaskListView: React.FC<TaskListViewProps> = ({
+  id,
   tasks,
   onCompleteTask,
   isFetching
 }) => {
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div id={`${id}-empty-state`} className="text-center py-12">
         <p className="text-muted-foreground">No tasks found</p>
       </div>
     )
   }
 
   return (
-    <div className={`space-y-4 ${isFetching ? 'opacity-50' : ''}`}>
+    <div id={id} className={`space-y-4 ${isFetching ? 'opacity-50' : ''}`}>
       {tasks.map(task => (
         <TaskCard
           key={task.id}
+          id={`tasks-list-item-${task.id}`}
           task={task}
           onComplete={onCompleteTask}
         />
@@ -1306,11 +1370,13 @@ const taskSchema = z.object({
 type TaskFormData = z.infer<typeof taskSchema>
 
 interface CreateTaskModalProps {
+  id: string  // Required: context-aware ID (e.g., "tasks-create-modal")
   isOpen: boolean
   onClose: () => void
 }
 
 export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
+  id,
   isOpen,
   onClose
 }) => {
@@ -1342,34 +1408,37 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     }
   }
 
+  // Derive form ID from modal ID (e.g., "tasks-create-modal" -> "tasks-create-form")
+  const formId = id.replace('-modal', '-form')
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent id={id} className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form id={formId} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <Label htmlFor="title">Title *</Label>
-            <Input id="title" {...register('title')} />
+            <Label htmlFor="tasks-title-input">Title *</Label>
+            <Input id="tasks-title-input" {...register('title')} />
             {errors.title && (
               <p className="text-sm text-destructive mt-1">{errors.title.message}</p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" {...register('description')} rows={4} />
+            <Label htmlFor="tasks-description-input">Description</Label>
+            <Textarea id="tasks-description-input" {...register('description')} rows={4} />
             {errors.description && (
               <p className="text-sm text-destructive mt-1">{errors.description.message}</p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="priority">Priority</Label>
+            <Label htmlFor="tasks-priority-select">Priority</Label>
             <Select defaultValue="Medium" onValueChange={(value) => setValue('priority', value)}>
-              <SelectTrigger>
+              <SelectTrigger id="tasks-priority-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1382,10 +1451,10 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
           </div>
 
           <div className="flex justify-end gap-2 mt-6">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <Button id="tasks-cancel-button" type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button id="tasks-save-button" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Task'}
             </Button>
           </div>
@@ -1448,29 +1517,34 @@ test.describe('Task Management UI', () => {
   test('should display task list', async ({ page }) => {
     await page.goto('http://localhost:3100/tasks')
 
-    // Should show task management page
+    // Should show task management page (using context-aware ID)
+    await expect(page.locator('#tasks-management-page')).toBeVisible()
     await expect(page.locator('h1:has-text("Task Management")')).toBeVisible()
 
-    // Should show tasks (if any exist)
-    const taskList = page.locator('[data-testid="task-list"]')
+    // Should show tasks data table (using context-aware ID)
+    const taskList = page.locator('#tasks-data-table')
     await expect(taskList).toBeVisible()
   })
 
   test('should create new task', async ({ page }) => {
     await page.goto('http://localhost:3100/tasks')
 
-    // Click create button
-    await page.click('button:has-text("Create Task")')
+    // Click create button (using context-aware ID)
+    await page.click('#tasks-create-button')
 
-    // Fill form
-    await page.fill('[name="title"]', 'UI Test Task')
-    await page.fill('[name="description"]', 'Created via E2E test')
-    await page.selectOption('[name="priority"]', 'High')
+    // Verify modal opened (using context-aware ID)
+    await expect(page.locator('#tasks-create-modal')).toBeVisible()
 
-    // Submit
-    await page.click('button[type="submit"]:has-text("Create")')
+    // Fill form (using context-aware IDs)
+    await page.fill('#tasks-title-input', 'UI Test Task')
+    await page.fill('#tasks-description-input', 'Created via E2E test')
+    await page.click('#tasks-priority-select')
+    await page.click('text=High')
 
-    // Verify task appears
+    // Submit (using context-aware ID)
+    await page.click('#tasks-save-button')
+
+    // Verify task appears in list
     await expect(page.locator('text=UI Test Task')).toBeVisible()
   })
 
@@ -1488,33 +1562,39 @@ test.describe('Task Management UI', () => {
   test('should filter by status', async ({ page }) => {
     await page.goto('http://localhost:3100/tasks')
 
-    // Apply status filter
-    await page.selectOption('[name="statusFilter"]', 'Completed')
+    // Apply status filter (using context-aware ID)
+    await page.click('#tasks-status-filter')
+    await page.click('text=Completed')
 
     // All visible tasks should be completed
-    const statusBadges = page.locator('[data-testid="task-status"]')
-    const count = await statusBadges.count()
+    // List items have IDs like "tasks-list-item-{id}"
+    const taskItems = page.locator('[id^="tasks-list-item-"]')
+    const count = await taskItems.count()
 
     for (let i = 0; i < count; i++) {
-      await expect(statusBadges.nth(i)).toHaveText('Completed')
+      await expect(taskItems.nth(i).locator('[data-status]')).toHaveAttribute('data-status', 'Completed')
     }
   })
 
   test('should be keyboard navigable', async ({ page }) => {
     await page.goto('http://localhost:3100/tasks')
 
-    // Tab through interface
+    // Tab through interface (using context-aware IDs for verification)
     await page.keyboard.press('Tab') // Focus search
+    await expect(page.locator('#tasks-search-input')).toBeFocused()
+
     await page.keyboard.press('Tab') // Focus filter
     await page.keyboard.press('Tab') // Focus create button
+    await expect(page.locator('#tasks-create-button')).toBeFocused()
+
     await page.keyboard.press('Enter') // Open modal
 
-    // Verify modal opened
-    await expect(page.locator('dialog')).toBeVisible()
+    // Verify modal opened (using context-aware ID)
+    await expect(page.locator('#tasks-create-modal')).toBeVisible()
 
     // Close with Escape
     await page.keyboard.press('Escape')
-    await expect(page.locator('dialog')).not.toBeVisible()
+    await expect(page.locator('#tasks-create-modal')).not.toBeVisible()
   })
 })
 ```
@@ -2737,11 +2817,55 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ## IMPORTANT REMINDERS
 
+### Plan Approval Non-Negotiables:
+1. **⛔ ALWAYS create implementation plan FIRST** - Save to `ProjectArchitecture/Plans/`
+2. **⛔ ALWAYS wait for user approval** - DO NOT write any code until approved
+3. **⛔ NEVER skip the approval step** - This is a blocking checkpoint
+
 ### TDD Non-Negotiables:
 1. **🔴 ALWAYS write component tests FIRST** - Before writing JSX
 2. **🟢 ALWAYS run tests after implementation** - Ensure they pass
 3. **🔵 ALWAYS run tests after refactoring** - Ensure they stay green
 4. **❌ NEVER skip the RED phase** - Tests must fail before you implement
+
+### Context-Aware ID Non-Negotiables:
+1. **ALWAYS add an `id` attribute to every component and page**
+2. **ALWAYS use kebab-case** - e.g., `tasks-create-modal`
+3. **ALWAYS include feature prefix** - e.g., `tasks-`, `users-`, `invoices-`
+4. **ALWAYS make IDs descriptive** - e.g., `tasks-data-table`, not just `table`
+5. **NEVER create a component without an ID** - This enables testing and debugging
+
+**ID Pattern Examples:**
+```tsx
+// Page: {feature}-management-page
+<div id="tasks-management-page">
+
+// Table/List: {feature}-data-table or {feature}-list-view
+<table id="tasks-data-table">
+
+// List items: {feature}-list-item-{id}
+<div id={`tasks-list-item-${task.id}`}>
+
+// Modals: {feature}-{action}-modal
+<Dialog id="tasks-create-modal">
+<Dialog id="tasks-edit-modal">
+
+// Forms: {feature}-{action}-form
+<form id="tasks-create-form">
+
+// Buttons: {feature}-{action}-button
+<Button id="tasks-save-button">
+<Button id="tasks-cancel-button">
+
+// Inputs: {feature}-{field}-input or {feature}-{field}-select
+<Input id="tasks-title-input">
+<Select id="tasks-priority-select">
+
+// Filters: {feature}-filters-panel, {feature}-search-input, {feature}-{filter}-filter
+<div id="tasks-filters-panel">
+<input id="tasks-search-input">
+<select id="tasks-status-filter">
+```
 
 ### React Best Practices:
 1. **ALWAYS use RTK Query for API data** - Never Redux slices for server data
@@ -2754,6 +2878,9 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 8. **NEVER skip error handling** - Always use parseApiError
 
 ### Quality Gates:
+- ✅ Implementation plan created and saved to `ProjectArchitecture/Plans/`
+- ✅ User approved the plan before any coding
+- ✅ All components have context-aware IDs (kebab-case with feature prefix)
 - ✅ All component tests pass
 - ✅ All E2E tests pass
 - ✅ Build succeeds

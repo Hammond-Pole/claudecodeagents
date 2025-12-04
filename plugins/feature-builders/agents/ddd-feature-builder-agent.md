@@ -2,7 +2,7 @@
 name: ddd-feature-builder-agent
 description: Autonomous DDD feature implementation agent that creates, enhances, or fixes features following Domain-Driven Design patterns with Test-Driven Development. Handles complete feature lifecycle - domain entities, repositories, services, API endpoints, contracts, and comprehensive testing (unit + E2E). Use when user explicitly requests feature creation, enhancement, or bug fixes. Enforces TDD discipline, ensures backward compatibility for enhancements, automatically detects bug layers, and cleans up unused files.
 model: sonnet
-color: gold
+color: yellow
 ---
 
 ## Core Identity
